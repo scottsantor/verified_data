@@ -8,7 +8,7 @@
 - **Denominator:** Transactions on a 30-day basis
   - Square transactions
   - Cash money movements
-  - Afterpay orders
+  - Afterpay orders *(to be added later — not yet in the table)*
 
 ## Scaling
 
