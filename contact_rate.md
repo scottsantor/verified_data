@@ -9,3 +9,7 @@
   - Square transactions
   - Cash money movements
   - Afterpay orders
+
+## Scaling
+
+The metric is expressed as **contacts per 1,000 transactions** — the raw ratio (numerator / denominator) is multiplied by 1,000 to produce the final value.
