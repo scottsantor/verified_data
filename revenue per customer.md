@@ -52,3 +52,31 @@ from app_cash_mma.prod.money_movements_all_usd
 ```
 
 **Documentation:** [go/$mma](https://go.sqprod.co/$mma)
+
+## Afterpay (approved orders per week)
+
+**Best tables to use:**
+- `ap_raw_green.green.f_order` — order fact
+- `ap_raw_green.green.d_consumer` — consumer dim (used to exclude shadow accounts)
+
+```sql
+select date_trunc('week', o.order_date) as report_week
+     , count(distinct o.id) as orders
+from ap_raw_green.green.f_order as o
+left join ap_raw_green.green.d_consumer as c
+  on o.consumer_id = c.id
+  and o.country_code = c.country_code
+  and c.is_shadow_account = true
+where o.order_date::date >= current_date - 7*104
+  and date_trunc('week', o.order_date::date) < date_trunc('week', current_date)  -- completed weeks only
+  and o.order_transaction_status = 'Approved'
+  and c.id is null  -- excludes shadow accounts
+group by 1
+```
+
+**Notes:**
+- Grain: one row per completed week. To get per-consumer, add `o.consumer_id` (and `o.country_code`) to the SELECT and GROUP BY.
+- Filters to `Approved` orders only.
+- Shadow-account exclusion is a left-join + `c.id is null` pattern: the join only matches when `c.is_shadow_account = true`, so non-shadow consumers come back as null and pass the filter.
+- 104-week (2-year) lookback; current (incomplete) week excluded.
+- All regions included (no `par_region` filter).
